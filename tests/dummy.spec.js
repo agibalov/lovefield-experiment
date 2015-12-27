@@ -50,5 +50,20 @@ describe('lovefield', () => {
 
       done()
     })
+
+    xit('should let me update', async (done) => {
+      await db.update(itemTable).set(itemTable.description, 'omgomgomg').where(itemTable.id.eq(2)).exec()
+      var rows = await db.select().from(itemTable).where(itemTable.id.eq(2)).exec()
+      expect(rows[0].description).toBe('omgomgomg')
+      done()
+    })
+
+    it('should let me delete', async (done) => {
+      await db.delete().from(itemTable).where(itemTable.id.eq(2)).exec()
+      var rows = await db.select().from(itemTable).exec()
+      expect(rows.length).toBe(1)
+
+      done()
+    })
   })
 })

@@ -1,0 +1,21 @@
+{
+  "name": "lovefield-experiment",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "loki2302 <loki2302@loki2302.me>"
+  ],
+  "license": "ISC",
+  "moduleType": [],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "lovefield": "~2.1.4"
+  }
+}

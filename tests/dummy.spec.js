@@ -36,6 +36,13 @@ describe('lovefield', () => {
       done()
     })
 
+    it('should let me count all', async (done) => {
+      var rows = await db.select(lf.fn.count().as('count')).from(itemTable).exec()
+      expect(rows[0].count).toBe(2)
+
+      done()
+    })
+
     it('should let me select all', async (done) => {
       var rows = await db.select().from(itemTable).exec()
       expect(rows.length).toBe(2)

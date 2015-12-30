@@ -8,9 +8,16 @@ describe('lovefield', () => {
       .addColumn('description', lf.Type.STRING)
       .addPrimaryKey(['id'])
 
-    db = await schemaBuilder.connect()
+    db = await schemaBuilder.connect({
+      storeType: lf.schema.DataStoreType.MEMORY
+    })
     itemTable = db.getSchema().table('Item')
 
+    done()
+  })
+
+  afterEach(async (done) => {
+    db.close()
     done()
   })
 

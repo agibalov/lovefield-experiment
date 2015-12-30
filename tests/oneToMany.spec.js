@@ -19,10 +19,17 @@ describe('one to many', () => {
         ref: 'Person.id'
       })
 
-    db = await schemaBuilder.connect()
+    db = await schemaBuilder.connect({
+      storeType: lf.schema.DataStoreType.MEMORY
+    })
     personTable = db.getSchema().table('Person')
     taskTable = db.getSchema().table('Task')
 
+    done()
+  })
+
+  afterEach(async (done) => {
+    db.close()
     done()
   })
 
@@ -74,14 +81,13 @@ describe('one to many', () => {
     await db.insertOrReplace().into(taskTable).values([
       taskTable.createRow({ id: 1, description: 'Task One', personId: 1 })
     ]).exec()
-    // TODO: why is it saying taskCount == 2 here?
-    //expect(changeHandlerSpy.calls.count()).toBe(1)
-    //expect(changeHandlerSpy.calls.mostRecent().args[0][0].object[0].taskCount).toBe(2)
+    expect(changeHandlerSpy.calls.count()).toBe(1)
+    expect(changeHandlerSpy.calls.mostRecent().args[0][0].object[0].taskCount).toBe(1)
 
     await db.insertOrReplace().into(taskTable).values([
       taskTable.createRow({ id: 2, description: 'Task Two', personId: 1 })
     ]).exec()
-    expect(changeHandlerSpy.calls.count()).toBe(1)
+    expect(changeHandlerSpy.calls.count()).toBe(2)
     expect(changeHandlerSpy.calls.mostRecent().args[0][0].object[0].taskCount).toBe(2)
 
     done()

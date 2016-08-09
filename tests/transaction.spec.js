@@ -36,7 +36,7 @@ describe('lovefield', () => {
       await tx.commit()
 
       const rows = await db.select(lf.fn.count().as('count')).from(itemTable).exec()
-      expect(rows[0].count).toBe(1);
+      expect(rows[0].count).toBe(1)
 
       done()
     })
@@ -45,7 +45,41 @@ describe('lovefield', () => {
       await tx.rollback()
 
       const rows = await db.select(lf.fn.count().as('count')).from(itemTable).exec()
-      expect(rows[0].count).toBe(0);
+      expect(rows[0].count).toBe(0)
+
+      done()
+    })
+  })
+
+  describe('when I want to observe', () => {
+    it('should call my handler only once after commit', async (done) => {
+      await db.insertOrReplace().into(itemTable).values([
+        itemTable.createRow({ id: 1, description: 'note one' })
+      ]).exec()
+
+      const query = db.select().from(itemTable).where(itemTable.id.eq(1))
+      const changeHandlerSpy = jasmine.createSpy('changeHandler')
+      db.observe(query, changeHandlerSpy)
+
+      const tx = db.createTransaction()
+      await tx.begin([itemTable])
+
+      await tx.attach(db.delete().from(itemTable).where(itemTable.id.eq(1)))
+      await tx.attach(db.insertOrReplace().into(itemTable).values([
+        itemTable.createRow({ id: 1, description: 'updated note one' })
+      ]))
+      await tx.attach(db.update(itemTable).set(itemTable.description, 'test').where(itemTable.id.eq(1)))
+
+      await tx.commit()
+
+      expect(changeHandlerSpy.calls.count()).toBe(1)
+      expect(changeHandlerSpy.calls.argsFor(0)[0]).toEqual([{
+        addedCount: 1,
+        index: 0,
+        object: [{ id: 1, description: 'test' }],
+        removed: [],
+        type: 'splice'
+      }])
 
       done()
     })
